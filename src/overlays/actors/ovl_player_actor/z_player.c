@@ -5923,6 +5923,10 @@ s32 Player_ActionHandler_1(Player* this, PlayState* play) {
     return 0;
 }
 
+/**
+ * Setup idle with hostile Z-target action, taking into account which foot
+ * should be forward in the animation
+ */
 void Player_SetupIdleHostileWithFootWeight(Player* this, PlayState* play) {
     LinkAnimationHeader* anim;
 

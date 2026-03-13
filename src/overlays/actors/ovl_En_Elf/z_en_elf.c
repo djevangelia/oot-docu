@@ -1111,7 +1111,7 @@ void func_80A0461C(EnElf* this, PlayState* play) {
         // `SCENE_CAM_TYPE_SHOOTING_GALLERY`.
         // However, of these three, only `SCENE_CAM_TYPE_FIXED_SHOP_VIEWPOINT` is used with `VIEWPOINT_PIVOT`,
         // so here the bit check is equivalent to checking for `SCENE_CAM_TYPE_FIXED_SHOP_VIEWPOINT`.
-        if ((player->stateFlags1 & PLAYER_STATE1_10) ||
+        if ((player->stateFlags1 & PLAYER_STATE1_GET_ITEM) ||
             ((R_SCENE_CAM_TYPE & 0x10) && Play_CheckViewpoint(play, VIEWPOINT_PIVOT))) {
             temp = 12;
             this->unk_2C0 = 100;

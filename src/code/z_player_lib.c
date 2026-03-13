@@ -1217,7 +1217,7 @@ void func_8008F87C(PlayState* play, Player* this, SkelAnime* skelAnime, Vec3f* p
     f32 sp50;
     s16 temp1;
     s16 temp2;
-    s32 temp3;
+    s32 floorType;
 
     if ((this->actor.scale.y >= 0.0f) && !(this->stateFlags1 & PLAYER_STATE1_DEAD) &&
         (Player_ActionToMagicSpell(this, this->itemAction) < 0)) {
@@ -1279,9 +1279,9 @@ void func_8008F87C(PlayState* play, Player* this, SkelAnime* skelAnime, Vec3f* p
             skelAnime->jointTable[shinLimbIndex].z = skelAnime->jointTable[shinLimbIndex].z + temp1;
             skelAnime->jointTable[footLimbIndex].z = skelAnime->jointTable[footLimbIndex].z + temp2 - temp1;
 
-            temp3 = SurfaceType_GetFloorType(&play->colCtx, sp88, sp84);
+            floorType = SurfaceType_GetFloorType(&play->colCtx, sp88, sp84);
 
-            if ((temp3 >= FLOOR_TYPE_2) && (temp3 <= FLOOR_TYPE_3) && !func_80042108(&play->colCtx, sp88, sp84)) {
+            if ((floorType >= FLOOR_TYPE_2) && (floorType <= FLOOR_TYPE_3) && !SurfaceType_DamageIsNotLava(&play->colCtx, sp88, sp84)) {
                 footprintPos.y = sp80;
                 EffectSsGFire_Spawn(play, &footprintPos);
             }
@@ -1871,7 +1871,7 @@ void Player_PostLimbDrawGameplay(PlayState* play, s32 limbIndex, Gfx** dList, Ve
             }
 
             if ((this->giDrawID != 0) || ((Player_IsHoldingRanged(this) == 0) && (heldActor != NULL))) {
-                if (!(this->stateFlags1 & PLAYER_STATE1_10) && (this->giDrawID != 0) &&
+                if (!(this->stateFlags1 & PLAYER_STATE1_GET_ITEM) && (this->giDrawID != 0) &&
                     (this->exchangeItemId != EXCH_ITEM_NONE)) {
                     Math_Vec3f_Copy(&sGetItemRefPos, &this->leftHandPos);
                 } else {

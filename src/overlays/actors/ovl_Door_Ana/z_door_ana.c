@@ -139,7 +139,7 @@ void DoorAna_WaitOpen(DoorAna* this, PlayState* play) {
     player = GET_PLAYER(play);
     if (Math_StepToF(&this->actor.scale.x, 0.01f, 0.001f)) {
         if ((this->actor.attentionRangeType != 0) && (play->transitionTrigger == TRANS_TRIGGER_OFF) &&
-            (player->stateFlags1 & PLAYER_STATE1_31) && (player->av1.actionVar1 == 0)) {
+            (player->stateFlags1 & PLAYER_STATE1_FALL_VOID_GROTTO) && (player->av1.actionVar1 == 0)) {
             destinationIdx = PARAMS_GET_U(this->actor.params, 12, 3) - 1;
             Play_SetupRespawnPoint(play, RESPAWN_MODE_RETURN,
                                    PLAYER_PARAMS(PLAYER_START_MODE_GROTTO, PLAYER_START_BG_CAM_DEFAULT));
@@ -152,10 +152,11 @@ void DoorAna_WaitOpen(DoorAna* this, PlayState* play) {
             play->nextEntranceIndex = sGrottoEntrances[destinationIdx];
             DoorAna_SetupAction(this, DoorAna_GrabPlayer);
         } else {
+            // Set player state if player gets too close to actor. This initiates falling into the grotto.
             if (!Player_InCsMode(play) && !(player->stateFlags1 & (PLAYER_STATE1_RIDING | PLAYER_STATE1_27)) &&
                 this->actor.xzDistToPlayer <= 15.0f && -50.0f <= this->actor.yDistToPlayer &&
                 this->actor.yDistToPlayer <= 15.0f) {
-                player->stateFlags1 |= PLAYER_STATE1_31;
+                player->stateFlags1 |= PLAYER_STATE1_FALL_VOID_GROTTO;
                 this->actor.attentionRangeType = ATTENTION_RANGE_1;
             } else {
                 this->actor.attentionRangeType = ATTENTION_RANGE_0;

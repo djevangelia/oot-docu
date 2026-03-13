@@ -715,7 +715,7 @@ typedef struct WeaponInfo {
 #define PLAYER_STATE1_DEAD (1 << 7) // Player has died. Note that this gets set when the death cutscene has started, after landing from the air.
 #define PLAYER_STATE1_START_CHANGING_HELD_ITEM (1 << 8) // Item change process has begun
 #define PLAYER_STATE1_RANGED_WEAPON_LOADED (1 << 9) // Bow, Slingshot or Hookshot is ready to fire. This is also set for a few frames after entering aiming mode even if weapon is not loaded.
-#define PLAYER_STATE1_10 (1 << 10)
+#define PLAYER_STATE1_GET_ITEM (1 << 10)
 #define PLAYER_STATE1_CARRYING_ACTOR (1 << 11) // Currently carrying an actor
 #define PLAYER_STATE1_CHARGING_SPIN_ATTACK (1 << 12) // Currently charging a spin attack (by holding down the B button)
 #define PLAYER_STATE1_13 (1 << 13)
@@ -736,7 +736,7 @@ typedef struct WeaponInfo {
 #define PLAYER_STATE1_28 (1 << 28)
 #define PLAYER_STATE1_29 (1 << 29)
 #define PLAYER_STATE1_LOCK_ON_FORCED_TO_RELEASE (1 << 30) // Lock-on was released automatically, for example by leaving the lock-on leash range
-#define PLAYER_STATE1_31 (1 << 31)
+#define PLAYER_STATE1_FALL_VOID_GROTTO (1 << 31) // Used when voiding out from a fall (not on ground) and entering grottos.
 
 #define PLAYER_STATE2_GRAB_HOLD (1 << 0) // Set when able to grab onto something movable (blocks, Forest Temple rotating wall) or heavy block. Continuously set when holding, pushing and pulling objects.
 #define PLAYER_STATE2_CAN_ACCEPT_TALK_OFFER (1 << 1) // Can accept a talk offer. "Speak" or "Check" is shown on the A button.
@@ -745,14 +745,14 @@ typedef struct WeaponInfo {
 #define PLAYER_STATE2_PUSH_PULL (1 << 4) // Set intraframe by pushing and pulling actions. Blocks, graves, etc.
 #define PLAYER_STATE2_5 (1 << 5)
 #define PLAYER_STATE2_6 (1 << 6)
-#define PLAYER_STATE2_7 (1 << 7)
+#define PLAYER_STATE2_GRABBED (1 << 7) // Grabbed by enemy and immobilized, such as Redead, Like like
 #define PLAYER_STATE2_8 (1 << 8)
 #define PLAYER_STATE2_FORCE_SAND_FLOOR_SOUND (1 << 9) // Forces sand footstep sounds regardless of current floor type
 #define PLAYER_STATE2_10 (1 << 10)
 #define PLAYER_STATE2_DIVING (1 << 11)  // Dive action (not when jumping into water or being underwater)
-#define PLAYER_STATE2_12 (1 << 12)
+#define PLAYER_STATE2_CLIMB_STILL (1 << 12) // Climbing but currently not moving
 #define PLAYER_STATE2_LOCK_ON_WITH_SWITCH (1 << 13) // Actor lock-on is active, specifically with Switch Targeting. Hold Targeting checks the state of the Z button instead of this flag.
-#define PLAYER_STATE2_14 (1 << 14)
+#define PLAYER_STATE2_FROZEN (1 << 14) // Used to draw the ice block encasing Link when frozen
 #define PLAYER_STATE2_15 (1 << 15)
 #define PLAYER_STATE2_DO_ACTION_ENTER (1 << 16) // Sets the "Enter On A" DoAction
 #define PLAYER_STATE2_RELEASE_SPIN_ATTACK (1 << 17) // Set when a spin attack release starts, to signal the En_M_Thunder actor. Remains set for spin duration if non-magic spin attack (for sword collision).
@@ -767,16 +767,16 @@ typedef struct WeaponInfo {
 #define PLAYER_STATE2_26 (1 << 26)
 #define PLAYER_STATE2_USING_OCARINA (1 << 27) // Playing the ocarina or warping out from an ocarina warp song
 #define PLAYER_STATE2_IDLE_FIDGET (1 << 28) // Playing a fidget idle animation (under typical circumstances, see `Player_ChooseNextIdleAnim` for more info)
-#define PLAYER_STATE2_29 (1 << 29)
+#define PLAYER_STATE2_SHOPPING (1 << 29) // Set by shopkeepers when player is talking and shopping (including Happy Mask Shop)
 #define PLAYER_STATE2_30 (1 << 30)
-#define PLAYER_STATE2_31 (1 << 31)
+#define PLAYER_STATE2_WHIRLPOOL_VOID (1 << 31) // Set by En_Stream on the frame where player is deep enough to get voided out
 
 #define PLAYER_STATE3_DARK_LINK_FALL (1 << 0) // Set on Dark Link when damaged to remove collision detection and allow him to fall through the floor
-#define PLAYER_STATE3_1 (1 << 1)
+#define PLAYER_STATE3_KNOCKBACK_JUMPSLASH (1 << 1) // Player is in the air and cannot control their movement due to being knocked back or doing a jumpslash
 #define PLAYER_STATE3_DARK_LINK_IMMOBILIZED (1 << 2) // Set on Link when Dark Link has jumped onto his sword. Set on Dark Link when Link uses Deku Nut. Inhibits action functions.
 #define PLAYER_STATE3_MELEE_ATTACK (1 << 3) // Set after melee attacks, maintained shortly by hostile idle action to avoid adjusting yaw
-#define PLAYER_STATE3_4 (1 << 4)
-#define PLAYER_STATE3_OCARINA_GAME (1 << 5)
+#define PLAYER_STATE3_CHECK_GROUND_COLLISION (1 << 4) // Set if flags say ground collision should be checked. Removed intraframe. Never checked for anywhere.
+#define PLAYER_STATE3_OCARINA_GAME (1 << 5) // Force player to use Ocarina after agreeing to Skullkid Ocarina game 
 #define PLAYER_STATE3_RESTORE_NAYRUS_LOVE (1 << 6) // Set by ocarina effects actors when destroyed to signal Nayru's Love may be restored (see `ACTOROVL_ALLOC_ABSOLUTE`)
 #define PLAYER_STATE3_FLYING_WITH_HOOKSHOT (1 << 7) // Flying in the air with the hookshot as it pulls Player toward its destination
 
@@ -951,7 +951,7 @@ typedef struct Player {
     /* 0x088D */ u8 ledgeClimbDelayTimer;
     /* 0x088E */ u8 textboxBtnCooldownTimer; // Prevents usage of A/B/C-up when counting down
     /* 0x088F */ u8 damageFlickerAnimCounter; // Used to flicker Link after taking damage
-    /* 0x0890 */ u8 unk_890;
+    /* 0x0890 */ u8 damageRunTimer; // Frames that player will run with slouched damage posture after taking damage while running
     /* 0x0891 */ u8 bodyShockTimer;
     /* 0x0892 */ u8 unk_892;
     /* 0x0893 */ u8 hoverBootsTimer;

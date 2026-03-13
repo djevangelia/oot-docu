@@ -122,7 +122,7 @@ typedef enum FloorType {
     /*  8 */ FLOOR_TYPE_8,
     /*  9 */ FLOOR_TYPE_9,
     /* 10 */ FLOOR_TYPE_10,
-    /* 11 */ FLOOR_TYPE_11, // Exit grotto
+    /* 11 */ FLOOR_TYPE_11, // Exit grotto (force look up)
     /* 12 */ FLOOR_TYPE_12
 } FloorType;
 
@@ -144,12 +144,12 @@ typedef enum WallType {
 } WallType;
 
 #define WALL_FLAG_0 (1 << 0)
-#define WALL_FLAG_1 (1 << 1)
-#define WALL_FLAG_2 (1 << 2)
-#define WALL_FLAG_3 (1 << 3)
+#define WALL_FLAG_LADDER (1 << 1)
+#define WALL_FLAG_LADDER_TOP (1 << 2)
+#define WALL_FLAG_CLIMBABLE (1 << 3)
 #define WALL_FLAG_CRAWLSPACE_1 (1 << 4)
 #define WALL_FLAG_CRAWLSPACE_2 (1 << 5)
-#define WALL_FLAG_GRABBABLE (1 << 6)
+#define WALL_FLAG_GRABBABLE (1 << 6) // Grabbable object such as blocks
 #define WALL_FLAG_CRAWLSPACE (WALL_FLAG_CRAWLSPACE_1 | WALL_FLAG_CRAWLSPACE_2)
 
 typedef enum FloorProperty {
@@ -457,7 +457,7 @@ s32 SurfaceType_IsIgnoredByProjectiles(CollisionContext* colCtx, CollisionPoly* 
 s32 SurfaceType_IsFloorConveyor(CollisionContext* colCtx, CollisionPoly* poly, s32 bgId);
 u32 SurfaceType_GetConveyorSpeed(CollisionContext* colCtx, CollisionPoly* poly, s32 bgId);
 u32 SurfaceType_GetConveyorDirection(CollisionContext* colCtx, CollisionPoly* poly, s32 bgId);
-u32 func_80042108(CollisionContext* colCtx, CollisionPoly* poly, s32 bgId);
+u32 SurfaceType_DamageIsNotLava(CollisionContext* colCtx, CollisionPoly* poly, s32 bgId);
 s32 WaterBox_GetSurface1(struct PlayState* play, CollisionContext* colCtx, f32 x, f32 z, f32* ySurface,
                          WaterBox** outWaterBox);
 s32 WaterBox_GetSurface2(struct PlayState* play, CollisionContext* colCtx, Vec3f* pos, f32 surfaceChkDist,

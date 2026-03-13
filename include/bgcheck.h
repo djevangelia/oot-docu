@@ -122,7 +122,7 @@ typedef enum FloorType {
     /*  8 */ FLOOR_TYPE_8,
     /*  9 */ FLOOR_TYPE_9,
     /* 10 */ FLOOR_TYPE_10,
-    /* 11 */ FLOOR_TYPE_11,
+    /* 11 */ FLOOR_TYPE_11, // Exit grotto
     /* 12 */ FLOOR_TYPE_12
 } FloorType;
 
@@ -149,18 +149,18 @@ typedef enum WallType {
 #define WALL_FLAG_3 (1 << 3)
 #define WALL_FLAG_CRAWLSPACE_1 (1 << 4)
 #define WALL_FLAG_CRAWLSPACE_2 (1 << 5)
-#define WALL_FLAG_6 (1 << 6)
+#define WALL_FLAG_GRABBABLE (1 << 6)
 #define WALL_FLAG_CRAWLSPACE (WALL_FLAG_CRAWLSPACE_1 | WALL_FLAG_CRAWLSPACE_2)
 
 typedef enum FloorProperty {
-    /*  0 */ FLOOR_PROPERTY_0,
-    /*  5 */ FLOOR_PROPERTY_5 = 5,
-    /*  6 */ FLOOR_PROPERTY_6,
-    /*  7 */ FLOOR_PROPERTY_7,
-    /*  8 */ FLOOR_PROPERTY_8,
-    /*  9 */ FLOOR_PROPERTY_9,
-    /* 11 */ FLOOR_PROPERTY_11 = 11,
-    /* 12 */ FLOOR_PROPERTY_12
+    /*  0 */ FLOOR_PROPERTY_0, // Normal floor property
+    /*  5 */ FLOOR_PROPERTY_5 = 5, // Trigger respawn. Used in Dampe's grave, Spirit Temple, DMT.
+    /*  6 */ FLOOR_PROPERTY_6, // Force grabbing ledge, no jump or fall. See: Volvagia boss platform edges.
+    /*  7 */ FLOOR_PROPERTY_7, // Prevent walking off edges. Only used in Chamber of Sages.
+    /*  8 */ FLOOR_PROPERTY_8, // Prevent XZ movement. Used on Spirit Temple statue and in Shooting Gallery + Bombchu Bowling.
+    /*  9 */ FLOOR_PROPERTY_9, // Force falling, no jump. However, the wall can be grabbed if climbable (func_8083A6AC). Also set for Hover Boots. See: Pot room mini-walls between windows.
+    /* 11 */ FLOOR_PROPERTY_11 = 11, // Able to jumpdive off ledge
+    /* 12 */ FLOOR_PROPERTY_12 // Trigger voidout. Used in Haunted Wasteland, Shadow Temple, Ice Cavern among others.
 } FloorProperty;
 
 typedef enum SurfaceSfxOffset {

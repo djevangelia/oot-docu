@@ -74,7 +74,7 @@ s32 D_80119D90[WALL_TYPE_MAX] = {
     WALL_FLAG_3,               // WALL_TYPE_4
     WALL_FLAG_CRAWLSPACE_1,    // WALL_TYPE_5
     WALL_FLAG_CRAWLSPACE_2,    // WALL_TYPE_6
-    WALL_FLAG_6,               // WALL_TYPE_7
+    WALL_FLAG_GRABBABLE,               // WALL_TYPE_7
 };
 
 u16 sSurfaceMaterialToSfxOffset[SURFACE_MATERIAL_MAX] = {

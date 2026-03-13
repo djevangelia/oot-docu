@@ -208,9 +208,9 @@ void EffectSs_Spawn(PlayState* play, s32 type, s32 priority, void* initParams) {
                          "せん。そのため、プログラムのロードも\n"
                          "出来ません。ただいま危険な状態です！\n"
                          "もちろん,エフェクトも出ません。\n",
-                         "EffectSoftSprite2_makeEffect():zelda_malloc_r() The memory of %d byte cannot be\n"
-                         "secured. Therefore, the program\n"
-                         "cannot be loaded. What a dangerous situation!\n"
+                         "EffectSoftSprite2_makeEffect(): zelda_malloc_r() cannot allocate %d bytes\n"
+                         "of memory. Therefore, the program\n"
+                         "cannot be loaded. This is a dangerous situation!\n"
                          "Naturally, effects will not be produced either.\n"),
                        overlaySize);
                 PRINTF_RST();
@@ -239,7 +239,7 @@ void EffectSs_Spawn(PlayState* play, s32 type, s32 priority, void* initParams) {
                  "すが,コンストラクターがNULLなので追加をやめます。\n"
                  "直してください。（メモリーの無駄) %08x %d\n",
                  "EffectSoftSprite2_makeEffect(): Effects have already been loaded,\n"
-                 "but the constructor is NULL so the addition will not occur.\n"
+                 "but the constructor is NULL so they will not be added.\n"
                  "Please fix this. (Waste of memory) %08x %d\n"),
                profile, type);
         return;
@@ -323,8 +323,8 @@ void EffectSs_DrawAll(PlayState* play) {
                 PRINTF(T("EffectSoftSprite2_disp():位置が領域外のため "
                          "削除します。エフェクトラベルNo.%d:プログラムの方で対応をお願いします。ここです ==> "
                          "pos(%f, %f, %f)で、ラベルはz_effect_soft_sprite_dlftbls.declにあります。\n",
-                         "EffectSoftSprite2_disp(): Since the position is outside the area, "
-                         "delete it. Effect label No. %d: Please respond by the program. Here is ==> "
+                         "EffectSoftSprite2_disp(): Effect deleted as its position is outside "
+                         "the play area. Effect label No. %d: Please respond by the program. Here ==> "
                          "pos(%f, %f, %f) and the label is in z_effect_soft_sprite_dlftbls.decl.\n"),
                        sEffectSsInfo.table[i].type, sEffectSsInfo.table[i].pos.x, sEffectSsInfo.table[i].pos.y,
                        sEffectSsInfo.table[i].pos.z);

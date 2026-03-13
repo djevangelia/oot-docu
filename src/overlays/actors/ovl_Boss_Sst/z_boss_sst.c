@@ -396,7 +396,7 @@ void BossSst_HeadSetupIntro(BossSst* this, PlayState* play) {
     player->yaw = -0x8000;
     player->actor.velocity.y = 0.0f;
     player->fallStartHeight = 0;
-    player->stateFlags1 |= PLAYER_STATE1_5;
+    player->stateFlags1 |= PLAYER_STATE1_BONGO_PREINTRO; // Set before intro cutscene starts to prevent player input
 
     Cutscene_StartManual(play, &play->csCtx);
     Player_SetCsActionWithHaltedActors(play, &this->actor, PLAYER_CSACTION_8);
@@ -430,7 +430,7 @@ void BossSst_HeadIntro(BossSst* this, PlayState* play) {
     if (this->timer == 0) {
         sHands[RIGHT]->actor.flags |= ACTOR_FLAG_ATTENTION_ENABLED;
         sHands[LEFT]->actor.flags |= ACTOR_FLAG_ATTENTION_ENABLED;
-        player->stateFlags1 &= ~PLAYER_STATE1_5;
+        player->stateFlags1 &= ~PLAYER_STATE1_BONGO_PREINTRO;
         Cutscene_StopManual(play, &play->csCtx);
         Player_SetCsActionWithHaltedActors(play, &this->actor, PLAYER_CSACTION_7);
         sSubCamAt.y += 30.0f;

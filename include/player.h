@@ -629,10 +629,10 @@ typedef enum PlayerCueId {
 
 typedef enum PlayerLedgeClimbType {
     /* 0 */ PLAYER_LEDGE_CLIMB_NONE,
-    /* 1 */ PLAYER_LEDGE_CLIMB_1,
-    /* 2 */ PLAYER_LEDGE_CLIMB_2,
-    /* 3 */ PLAYER_LEDGE_CLIMB_3,
-    /* 4 */ PLAYER_LEDGE_CLIMB_4
+    /* 1 */ PLAYER_LEDGE_CLIMB_SMALL,
+    /* 2 */ PLAYER_LEDGE_CLIMB_MEDIUM,
+    /* 3 */ PLAYER_LEDGE_CLIMB_LARGE,
+    /* 4 */ PLAYER_LEDGE_CLIMB_HANG
 } PlayerLedgeClimbType;
 
 typedef enum PlayerStickDirection {
@@ -661,16 +661,16 @@ typedef enum PlayerHitResponseType {
 typedef struct PlayerAgeProperties {
     /* 0x00 */ f32 ceilingCheckHeight;
     /* 0x04 */ f32 unk_04;
-    /* 0x08 */ f32 unk_08;
+    /* 0x08 */ f32 moveScale; // some movements are scaled by age with this
     /* 0x0C */ f32 unk_0C;
     /* 0x10 */ f32 unk_10;
-    /* 0x14 */ f32 unk_14;
-    /* 0x18 */ f32 unk_18;
-    /* 0x1C */ f32 unk_1C;
+    /* 0x14 */ f32 hangLedgeHeight; // If player jumps from the ground to a ledge of this height, player will hang from the ledge and not automatically finish the climb
+    /* 0x18 */ f32 largeLedgeHeight; // Player will have to make a larger jump to grab and climb up ledges from this height
+    /* 0x1C */ f32 mediumLedgeHeight; // Player will have to grab and climb up ledges from this height
     /* 0x20 */ f32 unk_20;
-    /* 0x24 */ f32 stopSwimDepth;   // player exits water to ground
-    /* 0x28 */ f32 surfaceSwimDepth;    // player swimming on the surface will be approximately this deep
-    /* 0x2C */ f32 startSwimDepth;  // player starts swimming
+    /* 0x24 */ f32 stopSwimDepth;   // player walks and steps onto ground and exits water
+    /* 0x28 */ f32 surfaceSwimDepth;    // player swimming on the surface will have a depthInWater approximately this deep
+    /* 0x2C */ f32 startSwimDepth;  // player starts swimming when walking into water
     /* 0x30 */ f32 diveResurfaceDepth;  // player starts to resurface from a dive
     /* 0x34 */ f32 unk_34;
     /* 0x38 */ f32 wallCheckRadius;
@@ -689,7 +689,7 @@ typedef struct PlayerAgeProperties {
     /* 0xA4 */ LinkAnimationHeader* unk_A4;
     /* 0xA8 */ LinkAnimationHeader* unk_A8;
     /* 0xAC */ LinkAnimationHeader* unk_AC[4];
-    /* 0xBC */ LinkAnimationHeader* unk_BC[2];
+    /* 0xBC */ LinkAnimationHeader* sSideClimbAnim[2];
     /* 0xC4 */ LinkAnimationHeader* unk_C4[2];
     /* 0xCC */ LinkAnimationHeader* unk_CC[2];
 } PlayerAgeProperties; // size = 0xD4
@@ -710,7 +710,7 @@ typedef struct WeaponInfo {
 #define PLAYER_STATE1_2 (1 << 2)
 #define PLAYER_STATE1_HOLDING_RANGED (1 << 3)    // Held item is Bow, Slingshot or Hookshot/Longshot (ranged), in any phase (aiming, unloaded, loaded, shooting, walking in non-aimed state).
 #define PLAYER_STATE1_HOSTILE_LOCK_ON (1 << 4) // Currently locked onto a hostile actor. Triggers a "battle" variant of many actions.
-#define PLAYER_STATE1_5 (1 << 5)
+#define PLAYER_STATE1_BONGO_PREINTRO (1 << 5) // Used by Bongo Bongo in the pre-intro cutscene, where player isn't yet in a cutscene action state, to prevent input.
 #define PLAYER_STATE1_TALKING (1 << 6) // Currently talking to an actor. This includes item exchanges.
 #define PLAYER_STATE1_DEAD (1 << 7) // Player has died. Note that this gets set when the death cutscene has started, after landing from the air.
 #define PLAYER_STATE1_START_CHANGING_HELD_ITEM (1 << 8) // Item change process has begun
@@ -727,8 +727,8 @@ typedef struct WeaponInfo {
 #define PLAYER_STATE1_19 (1 << 19)
 #define PLAYER_STATE1_FIRST_PERSON (1 << 20)    // Player is in first person camera (either with a first person weapon or unarmed)
 #define PLAYER_STATE1_21 (1 << 21)
-#define PLAYER_STATE1_SHIELDING (1 << 22) // Shielding in any form (regular, hylian shield as child, "shielding" with a two handed sword, etc.)
-#define PLAYER_STATE1_23 (1 << 23)
+#define PLAYER_STATE1_SHIELDING (1 << 22) // Shielding in any form (regular, Hylian shield as child, "shielding" with a two handed sword, etc.)
+#define PLAYER_STATE1_RIDING (1 << 23) // Riding a horse
 #define PLAYER_STATE1_HOLDING_BOOMERANG (1 << 24) // Held item is Boomerang. This includes all phases (aiming, throwing, catching, and walking in non-aimed state).
 #define PLAYER_STATE1_BOOMERANG_THROWN (1 << 25) // Boomerang has been thrown and is flying in the air
 #define PLAYER_STATE1_26 (1 << 26)
@@ -738,18 +738,18 @@ typedef struct WeaponInfo {
 #define PLAYER_STATE1_LOCK_ON_FORCED_TO_RELEASE (1 << 30) // Lock-on was released automatically, for example by leaving the lock-on leash range
 #define PLAYER_STATE1_31 (1 << 31)
 
-#define PLAYER_STATE2_0 (1 << 0)
+#define PLAYER_STATE2_GRAB_HOLD (1 << 0) // Set when able to grab onto something movable (blocks, Forest Temple rotating wall) or heavy block. Continuously set when holding, pushing and pulling objects.
 #define PLAYER_STATE2_CAN_ACCEPT_TALK_OFFER (1 << 1) // Can accept a talk offer. "Speak" or "Check" is shown on the A button.
 #define PLAYER_STATE2_2 (1 << 2)
 #define PLAYER_STATE2_MAKING_NOISE (1 << 3) // Set for one frame by Player_PlayItemNoise for melee attacks, changing items, using masks. Also when fast walking. Allows detection by certain enemies
-#define PLAYER_STATE2_4 (1 << 4)
+#define PLAYER_STATE2_PUSH_PULL (1 << 4) // Set intraframe by pushing and pulling actions. Blocks, graves, etc.
 #define PLAYER_STATE2_5 (1 << 5)
 #define PLAYER_STATE2_6 (1 << 6)
 #define PLAYER_STATE2_7 (1 << 7)
 #define PLAYER_STATE2_8 (1 << 8)
 #define PLAYER_STATE2_FORCE_SAND_FLOOR_SOUND (1 << 9) // Forces sand footstep sounds regardless of current floor type
 #define PLAYER_STATE2_10 (1 << 10)
-#define PLAYER_STATE2_DIVING (1 << 11)  // Dive action
+#define PLAYER_STATE2_DIVING (1 << 11)  // Dive action (not when jumping into water or being underwater)
 #define PLAYER_STATE2_12 (1 << 12)
 #define PLAYER_STATE2_LOCK_ON_WITH_SWITCH (1 << 13) // Actor lock-on is active, specifically with Switch Targeting. Hold Targeting checks the state of the Z button instead of this flag.
 #define PLAYER_STATE2_14 (1 << 14)
@@ -759,7 +759,7 @@ typedef struct WeaponInfo {
 #define PLAYER_STATE2_CRAWLING (1 << 18) // Crawling through a crawlspace
 #define PLAYER_STATE2_19 (1 << 19)
 #define PLAYER_STATE2_NAVI_ACTIVE (1 << 20) // Navi is visible and active. Could be hovering idle near Link or hovering over other actors.
-#define PLAYER_STATE2_21 (1 << 21)
+#define PLAYER_STATE2_NAVI_TALK_AVAILABLE (1 << 21) // Possible to speak with Navi through C-up. Hint, Z-target, other actors with info.
 #define PLAYER_STATE2_22 (1 << 22)
 #define PLAYER_STATE2_23 (1 << 23)
 #define PLAYER_STATE2_24 (1 << 24)
@@ -771,10 +771,10 @@ typedef struct WeaponInfo {
 #define PLAYER_STATE2_30 (1 << 30)
 #define PLAYER_STATE2_31 (1 << 31)
 
-#define PLAYER_STATE3_0 (1 << 0)
+#define PLAYER_STATE3_DARK_LINK_FALL (1 << 0) // Set on Dark Link when damaged to remove collision detection and allow him to fall through the floor
 #define PLAYER_STATE3_1 (1 << 1)
-#define PLAYER_STATE3_2 (1 << 2)
-#define PLAYER_STATE3_3 (1 << 3)
+#define PLAYER_STATE3_DARK_LINK_IMMOBILIZED (1 << 2) // Set on Link when Dark Link has jumped onto his sword. Set on Dark Link when Link uses Deku Nut. Inhibits action functions.
+#define PLAYER_STATE3_MELEE_ATTACK (1 << 3) // Set after melee attacks, maintained shortly by hostile idle action to avoid adjusting yaw
 #define PLAYER_STATE3_4 (1 << 4)
 #define PLAYER_STATE3_OCARINA_GAME (1 << 5)
 #define PLAYER_STATE3_RESTORE_NAYRUS_LOVE (1 << 6) // Set by ocarina effects actors when destroyed to signal Nayru's Love may be restored (see `ACTOROVL_ALLOC_ABSOLUTE`)
@@ -831,7 +831,7 @@ typedef struct Player {
     /* 0x03AC */ Actor* heldActor;
     /* 0x03B0 */ Vec3f leftHandPos;
     /* 0x03BC */ Vec3s unk_3BC;
-    /* 0x03C4 */ Actor* unk_3C4;
+    /* 0x03C4 */ Actor* grabbedActor; // Dynapolyactor that is grabbed, pushed or pulled by the player. Blocks, Forest Temple rotating wall etc.
     /* 0x03C8 */ Vec3f unk_3C8;
     /* 0x03D4 */ char unk_3D4[0x058];
     /* 0x042C */ s8 doorType;
@@ -883,7 +883,7 @@ typedef struct Player {
     /* 0x06A4 */ f32 closestSecretDistSq;
     /* 0x06A8 */ Actor* unk_6A8;
     /* 0x06AC */ s8 idleType;
-    /* 0x06AD */ u8 unk_6AD;    // Camera related. 1 = first person without weapon, 2 = first person with weapon. 0, 3, 4 = ?
+    /* 0x06AD */ u8 unk_6AD;    // Camera related. 0 = normal, 1 = first person without weapon, 2 = first person with weapon, 3 = cutscene action, 4 = cutscene items
     /* 0x06AE */ u16 unk_6AE_rotFlags; // See `UNK6AE_ROT_` macros. If its flag isn't set, a rot steps to 0.
     /* 0x06B0 */ s16 upperLimbYawSecondary;
     /* 0x06B2 */ char unk_6B4[0x004];
@@ -904,9 +904,9 @@ typedef struct Player {
     /* 0x083E */ s16 parallelYaw; // yaw in "parallel" mode, Z-Target without an actor lock-on
     /* 0x0840 */ u16 underwaterTimer;
     /* 0x0842 */ s8 meleeWeaponAnimation;
-    /* 0x0843 */ s8 meleeWeaponState;
-    /* 0x0844 */ s8 spinAttackStartTimer;
-    /* 0x0845 */ u8 tripleSlashCount;
+    /* 0x0843 */ s8 meleeWeaponState; // 0 = not melee attacking, -1 = melee attack started with blure effect without weapon colliders, 1 = weapon has active colliders
+    /* 0x0844 */ s8 spinAttackStartTimer; // Set to 8 when melee attacking, needs to be held for 7 frames to start charging spin attack
+    /* 0x0845 */ u8 tripleSlashCount; // Used for making the third attack in a row special "triple slash"
     /* 0x0846 */ u8 controlStickDataIndex; // cycles between 0 - 3. Used to index `controlStickSpinAngles` and `controlStickDirections`
     /* 0x0847 */ s8 controlStickSpinAngles[4]; // Stores a modified version of the control stick angle for the last 4 frames. Used for checking spins.
     /* 0x084B */ s8 controlStickDirections[4]; // Stores the control stick direction (relative to shape yaw) for the last 4 frames. See `PlayerStickDirection`.
@@ -935,7 +935,7 @@ typedef struct Player {
     /* 0x0858 */ f32 unk_858;   // Used in Bow/Slingshot string rebound calculations among other things.
     /* 0x085C */ f32 unk_85C; // stick length among other things (TODO: probably part of an "fwork" array). Used in Bow/Slingshot string rebound calculations.
     /* 0x0860 */ s16 unk_860; // stick flame timer among other things. Flag for which ranged weapon is used, negative if not loaded yet.
-    /* 0x0862 */ s8 unk_862; // get item draw ID + 1
+    /* 0x0862 */ s8 giDrawID; // get item draw ID + 1
     /* 0x0864 */ f32 unk_864;
     /* 0x0868 */ f32 unk_868;
     /* 0x086C */ f32 unused_86C;
@@ -985,7 +985,7 @@ typedef struct Player {
     /* 0x0A82 */ u16 prevFloorSfxOffset;
     /* 0x0A84 */ s16 unk_A84;
     /* 0x0A86 */ s8 unk_A86;
-    /* 0x0A87 */ u8 unk_A87;
+    /* 0x0A87 */ u8 postReviveFrames; // 20 frames after Fairy revive where certain things cannot take place
     /* 0x0A88 */ Vec3f unk_A88; // previous body part 0 position
 } Player; // size = 0xA94
 

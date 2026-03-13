@@ -169,7 +169,7 @@ u16 EnIn_GetTextIdAdult(PlayState* play) {
     }
     switch (GET_EVENTINF_INGO_RACE_STATE()) {
         case INGO_RACE_STATE_HORSE_RENTAL_PERIOD:
-            if (!(player->stateFlags1 & PLAYER_STATE1_23)) {
+            if (!(player->stateFlags1 & PLAYER_STATE1_RIDING)) {
                 return 0x2036;
             } else if (GET_EVENTCHKINF(EVENTCHKINF_1B)) {
                 if (GET_INFTABLE(INFTABLE_A2)) {
@@ -683,7 +683,7 @@ void func_80A7A568(EnIn* this, PlayState* play) {
     s32 phi_a2;
     s32 transitionType;
 
-    if (!GET_EVENTCHKINF(EVENTCHKINF_1B) && (player->stateFlags1 & PLAYER_STATE1_23)) {
+    if (!GET_EVENTCHKINF(EVENTCHKINF_1B) && (player->stateFlags1 & PLAYER_STATE1_RIDING)) {
         SET_INFTABLE(INFTABLE_AB);
     }
     if (gSaveContext.timerState == TIMER_STATE_STOP) {

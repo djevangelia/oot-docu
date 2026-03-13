@@ -114,7 +114,7 @@ u16 EnMa3_GetTextId(PlayState* play, Actor* thisx) {
         return 0x2004;
     }
 
-    if (!(player->stateFlags1 & PLAYER_STATE1_23) &&
+    if (!(player->stateFlags1 & PLAYER_STATE1_RIDING) &&
         (Actor_FindNearby(play, thisx, ACTOR_EN_HORSE, 1, 1200.0f) == NULL)) {
         return 0x2001;
     }

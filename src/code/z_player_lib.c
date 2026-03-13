@@ -757,7 +757,7 @@ void Player_ReleaseLockOn(Player* this) {
  */
 void Player_ClearZTargeting(Player* this) {
     if ((this->actor.bgCheckFlags & BGCHECKFLAG_GROUND) ||
-        (this->stateFlags1 & (PLAYER_STATE1_21 | PLAYER_STATE1_23 | PLAYER_STATE1_27)) ||
+        (this->stateFlags1 & (PLAYER_STATE1_21 | PLAYER_STATE1_RIDING | PLAYER_STATE1_27)) ||
         (!(this->stateFlags1 & (PLAYER_STATE1_18 | PLAYER_STATE1_19)) &&
          ((this->actor.world.pos.y - this->actor.floorHeight) < 100.0f))) {
         this->stateFlags1 &= ~(PLAYER_STATE1_Z_TARGETING | PLAYER_STATE1_FRIENDLY_ACTOR_FOCUS | PLAYER_STATE1_PARALLEL |
@@ -797,7 +797,7 @@ void Player_SetAutoLockOnActor(PlayState* play, Actor* actor) {
 s32 func_8008EF30(PlayState* play) {
     Player* this = GET_PLAYER(play);
 
-    return (this->stateFlags1 & PLAYER_STATE1_23);
+    return (this->stateFlags1 & PLAYER_STATE1_RIDING);
 }
 
 /**
@@ -1580,7 +1580,7 @@ void Player_DrawGetItemImpl(PlayState* play, Player* this, Vec3f* refPos, s32 dr
 void Player_DrawGetItem(PlayState* play, Player* this) {
     if (!this->giObjectLoading || osRecvMesg(&this->giObjectLoadQueue, NULL, OS_MESG_NOBLOCK) == 0) {
         this->giObjectLoading = false;
-        Player_DrawGetItemImpl(play, this, &sGetItemRefPos, ABS(this->unk_862));
+        Player_DrawGetItemImpl(play, this, &sGetItemRefPos, ABS(this->giDrawID));
     }
 }
 
@@ -1870,8 +1870,8 @@ void Player_PostLimbDrawGameplay(PlayState* play, s32 limbIndex, Gfx** dList, Ve
                 }
             }
 
-            if ((this->unk_862 != 0) || ((Player_IsHoldingRanged(this) == 0) && (heldActor != NULL))) {
-                if (!(this->stateFlags1 & PLAYER_STATE1_10) && (this->unk_862 != 0) &&
+            if ((this->giDrawID != 0) || ((Player_IsHoldingRanged(this) == 0) && (heldActor != NULL))) {
+                if (!(this->stateFlags1 & PLAYER_STATE1_10) && (this->giDrawID != 0) &&
                     (this->exchangeItemId != EXCH_ITEM_NONE)) {
                     Math_Vec3f_Copy(&sGetItemRefPos, &this->leftHandPos);
                 } else {
@@ -1880,7 +1880,7 @@ void Player_PostLimbDrawGameplay(PlayState* play, s32 limbIndex, Gfx** dList, Ve
                     sGetItemRefPos.z = (this->bodyPartsPos[PLAYER_BODYPART_R_HAND].z + this->leftHandPos.z) * 0.5f;
                 }
 
-                if (this->unk_862 == 0) {
+                if (this->giDrawID == 0) {
                     Math_Vec3f_Copy(&heldActor->world.pos, &sGetItemRefPos);
                 }
             }

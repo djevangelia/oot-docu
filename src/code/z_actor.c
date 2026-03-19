@@ -1141,7 +1141,7 @@ f32 func_8002DCE4(Player* player) {
 
     if (player->stateFlags1 & PLAYER_STATE1_RIDING) {
         return 8.0f;
-    } else if (player->stateFlags1 & PLAYER_STATE1_27) {
+    } else if (player->stateFlags1 & PLAYER_STATE1_IN_WATER) {
         return (R_RUN_SPEED_LIMIT / 100.0f) * 0.6f;
     } else {
         return R_RUN_SPEED_LIMIT / 100.0f;
@@ -1211,7 +1211,7 @@ void Actor_MountHorse(PlayState* play, Player* player, Actor* horse) {
 }
 
 int func_8002DEEC(Player* player) {
-    return (player->stateFlags1 & (PLAYER_STATE1_DEAD | PLAYER_STATE1_29)) ||
+    return (player->stateFlags1 & (PLAYER_STATE1_DEAD | PLAYER_STATE1_CUTSCENE)) ||
            (player->csAction != PLAYER_CSACTION_NONE);
 }
 
@@ -1246,7 +1246,7 @@ s32 Player_SetCsAction(PlayState* play, Actor* csActor, u8 csAction) {
  * There are no safety checks to see if Player is already in some form of a cutscene state.
  * This will instantly take effect.
  *
- * `haltActorsDuringCsAction` being set to true in this function means that eventually `PLAYER_STATE1_29` will be set.
+ * `haltActorsDuringCsAction` being set to true in this function means that eventually `PLAYER_STATE1_CUTSCENE` will be set.
  * This makes it so actors belonging to categories `ACTORCAT_ENEMY` and `ACTORCAT_MISC` will not update
  * while Player is performing the cutscene action.
  *
@@ -1871,12 +1871,12 @@ s32 Actor_OfferGetItem(Actor* actor, PlayState* play, s32 getItemId, f32 xzRange
     Player* player = GET_PLAYER(play);
 
     if (!(player->stateFlags1 &
-          (PLAYER_STATE1_DEAD | PLAYER_STATE1_CHARGING_SPIN_ATTACK | PLAYER_STATE1_13 | PLAYER_STATE1_14 |
-           PLAYER_STATE1_18 | PLAYER_STATE1_19 | PLAYER_STATE1_FIRST_PERSON | PLAYER_STATE1_21)) &&
+          (PLAYER_STATE1_DEAD | PLAYER_STATE1_CHARGING_SPIN_ATTACK | PLAYER_STATE1_HANGING | PLAYER_STATE1_CLIMB_JUMP_UP |
+           PLAYER_STATE1_18 | PLAYER_STATE1_FREE_FALL | PLAYER_STATE1_FIRST_PERSON | PLAYER_STATE1_CLIMBING)) &&
         Player_GetExplosiveHeld(player) < 0) {
         if ((((player->heldActor != NULL) || (player->talkActor == actor)) && (getItemId > GI_NONE) &&
              (getItemId < GI_MAX)) ||
-            (!(player->stateFlags1 & (PLAYER_STATE1_CARRYING_ACTOR | PLAYER_STATE1_29)))) {
+            (!(player->stateFlags1 & (PLAYER_STATE1_CARRYING_ACTOR | PLAYER_STATE1_CUTSCENE)))) {
             if ((actor->xzDistToPlayer < xzRange) && (fabsf(actor->yDistToPlayer) < yRange)) {
                 s16 yawDiff = actor->yawTowardsPlayer - player->actor.shape.rot.y;
                 s32 absYawDiff = ABS(yawDiff);
@@ -1945,8 +1945,8 @@ u32 Actor_SetRideActor(PlayState* play, Actor* horse, s32 mountSide) {
     Player* player = GET_PLAYER(play);
 
     if (!(player->stateFlags1 &
-          (PLAYER_STATE1_DEAD | PLAYER_STATE1_CARRYING_ACTOR | PLAYER_STATE1_CHARGING_SPIN_ATTACK | PLAYER_STATE1_13 |
-           PLAYER_STATE1_14 | PLAYER_STATE1_18 | PLAYER_STATE1_19 | PLAYER_STATE1_FIRST_PERSON | PLAYER_STATE1_21))) {
+          (PLAYER_STATE1_DEAD | PLAYER_STATE1_CARRYING_ACTOR | PLAYER_STATE1_CHARGING_SPIN_ATTACK | PLAYER_STATE1_HANGING |
+           PLAYER_STATE1_CLIMB_JUMP_UP | PLAYER_STATE1_18 | PLAYER_STATE1_FREE_FALL | PLAYER_STATE1_FIRST_PERSON | PLAYER_STATE1_CLIMBING))) {
         player->rideActor = horse;
         player->mountSide = mountSide;
         return true;
@@ -2387,13 +2387,13 @@ u32 sCategoryFreezeMasks[ACTORCAT_MAX] = {
     // ACTORCAT_NPC
     PLAYER_STATE1_DEAD,
     // ACTORCAT_ENEMY
-    PLAYER_STATE1_TALKING | PLAYER_STATE1_DEAD | PLAYER_STATE1_28 | PLAYER_STATE1_29,
+    PLAYER_STATE1_TALKING | PLAYER_STATE1_DEAD | PLAYER_STATE1_28 | PLAYER_STATE1_CUTSCENE,
     // ACTORCAT_PROP
     PLAYER_STATE1_DEAD | PLAYER_STATE1_28,
     // ACTORCAT_ITEMACTION
     0,
     // ACTORCAT_MISC
-    PLAYER_STATE1_TALKING | PLAYER_STATE1_DEAD | PLAYER_STATE1_28 | PLAYER_STATE1_29,
+    PLAYER_STATE1_TALKING | PLAYER_STATE1_DEAD | PLAYER_STATE1_28 | PLAYER_STATE1_CUTSCENE,
     // ACTORCAT_BOSS
     PLAYER_STATE1_TALKING | PLAYER_STATE1_DEAD | PLAYER_STATE1_GET_ITEM | PLAYER_STATE1_28,
     // ACTORCAT_DOOR

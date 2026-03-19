@@ -376,7 +376,7 @@ void func_809FE4A4(EnDu* this, PlayState* play) {
 void func_809FE638(EnDu* this, PlayState* play) {
     Player* player = GET_PLAYER(play);
 
-    if (player->stateFlags1 & PLAYER_STATE1_29) {
+    if (player->stateFlags1 & PLAYER_STATE1_CUTSCENE) {
         return;
     }
 

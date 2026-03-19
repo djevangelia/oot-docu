@@ -202,8 +202,8 @@ typedef enum SurfaceMaterial {
 
 typedef enum FloorEffect {
     /*  0 */ FLOOR_EFFECT_0,
-    /*  1 */ FLOOR_EFFECT_1,
-    /*  2 */ FLOOR_EFFECT_2
+    /*  1 */ FLOOR_EFFECT_1, // Sliding
+    /*  2 */ FLOOR_EFFECT_2 // Transition
 } FloorEffect;
 
 typedef enum ConveyorSpeed {

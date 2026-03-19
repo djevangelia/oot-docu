@@ -682,7 +682,7 @@ void EnTp_Update(Actor* thisx, PlayState* play) {
     Player* player = GET_PLAYER(play);
     s16 yawToWall;
 
-    if (player->stateFlags1 & PLAYER_STATE1_26) { // Shielding
+    if (player->stateFlags1 & PLAYER_STATE1_KNOCKBACK_FROZEN) { // Shielding
         this->damageReaction = TAILPASARAN_DMG_REACT_NONE;
     }
 

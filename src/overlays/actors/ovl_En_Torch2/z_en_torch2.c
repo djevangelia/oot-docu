@@ -596,7 +596,7 @@ void EnTorch2_Update(Actor* thisx, PlayState* play2) {
         sDeathFlag = false;
     }
     if ((this->invincibilityTimer == 0) && (this->actor.colChkInfo.health != 0) &&
-        (this->cylinder.base.acFlags & AC_HIT) && !(this->stateFlags1 & PLAYER_STATE1_26) &&
+        (this->cylinder.base.acFlags & AC_HIT) && !(this->stateFlags1 & PLAYER_STATE1_KNOCKBACK_FROZEN) &&
         !(this->meleeWeaponQuads[0].base.atFlags & AT_HIT) && !(this->meleeWeaponQuads[1].base.atFlags & AT_HIT)) {
 
         if (!Actor_ApplyDamage(&this->actor)) {
@@ -648,7 +648,7 @@ void EnTorch2_Update(Actor* thisx, PlayState* play2) {
         this->stateFlags3 &= ~PLAYER_STATE3_DARK_LINK_IMMOBILIZED;
     } else {
         this->stateFlags3 |= PLAYER_STATE3_DARK_LINK_IMMOBILIZED;
-        this->stateFlags1 &= ~PLAYER_STATE1_26;
+        this->stateFlags1 &= ~PLAYER_STATE1_KNOCKBACK_FROZEN;
         this->invincibilityTimer = 0;
         input->press.stick_x = input->press.stick_y = 0;
         /*! @bug

@@ -1754,8 +1754,8 @@ void BossGoma_UpdateEye(BossGoma* this, PlayState* play) {
 
         if (this->eyeState == EYESTATE_IRIS_FOLLOW_BONUS_IFRAMES) {
             // player + 0xA73 seems to be related to "throwing something"
-            if (player->unk_A73 != 0) {
-                player->unk_A73 = 0;
+            if (player->firedRanged != 0) {
+                player->firedRanged = 0;
                 this->eyeClosedTimer = 12;
             }
 

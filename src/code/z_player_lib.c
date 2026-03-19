@@ -42,7 +42,7 @@ s16 sBootData[PLAYER_BOOTS_MAX][17] = {
         800,                         // R_DECELERATE_RATE
         600,                         // R_RUN_SPEED_LIMIT
         -100,                        // REG(68)
-        600,                         // REG(69)
+        600,                         // R_DARK_LINK_JUMP
         590,                         // IREG(66)
         750,                         // IREG(67)
         125,                         // IREG(68)
@@ -62,7 +62,7 @@ s16 sBootData[PLAYER_BOOTS_MAX][17] = {
         800,                         // R_DECELERATE_RATE
         300,                         // R_RUN_SPEED_LIMIT
         -160,                        // REG(68)
-        600,                         // REG(69)
+        600,                         // R_DARK_LINK_JUMP
         590,                         // IREG(66)
         750,                         // IREG(67)
         125,                         // IREG(68)
@@ -82,7 +82,7 @@ s16 sBootData[PLAYER_BOOTS_MAX][17] = {
         800,                         // R_DECELERATE_RATE
         550,                         // R_RUN_SPEED_LIMIT
         -100,                        // REG(68)
-        600,                         // REG(69)
+        600,                         // R_DARK_LINK_JUMP
         540,                         // IREG(66)
         270,                         // IREG(67)
         25,                          // IREG(68)
@@ -102,7 +102,7 @@ s16 sBootData[PLAYER_BOOTS_MAX][17] = {
         800,                         // R_DECELERATE_RATE
         500,                         // R_RUN_SPEED_LIMIT
         -100,                        // REG(68)
-        600,                         // REG(69)
+        600,                         // R_DARK_LINK_JUMP
         590,                         // IREG(66)
         750,                         // IREG(67)
         125,                         // IREG(68)
@@ -122,7 +122,7 @@ s16 sBootData[PLAYER_BOOTS_MAX][17] = {
         800,                       // R_DECELERATE_RATE
         550,                       // R_RUN_SPEED_LIMIT
         -40,                       // REG(68)
-        400,                       // REG(69)
+        400,                       // R_DARK_LINK_JUMP
         540,                       // IREG(66)
         270,                       // IREG(67)
         25,                        // IREG(68)
@@ -142,7 +142,7 @@ s16 sBootData[PLAYER_BOOTS_MAX][17] = {
         800,                         // R_DECELERATE_RATE
         550,                         // R_RUN_SPEED_LIMIT
         -100,                        // REG(68)
-        600,                         // REG(69)
+        600,                         // R_DARK_LINK_JUMP
         540,                         // IREG(66)
         750,                         // IREG(67)
         125,                         // IREG(68)
@@ -588,7 +588,7 @@ void Player_SetBootData(PlayState* play, Player* this) {
             currentBoots = PLAYER_BOOTS_KOKIRI_CHILD;
         }
     } else if (currentBoots == PLAYER_BOOTS_IRON) {
-        if (this->stateFlags1 & PLAYER_STATE1_27) {
+        if (this->stateFlags1 & PLAYER_STATE1_IN_WATER) {
             currentBoots = PLAYER_BOOTS_IRON_UNDERWATER;
         }
         REG(27) = 500;
@@ -607,7 +607,7 @@ void Player_SetBootData(PlayState* play, Player* this) {
     R_DECELERATE_RATE = bootRegs[8];
     R_RUN_SPEED_LIMIT = bootRegs[9];
     REG(68) = bootRegs[10];
-    REG(69) = bootRegs[11];
+    R_DARK_LINK_JUMP = bootRegs[11];
     IREG(66) = bootRegs[12];
     IREG(67) = bootRegs[13];
     IREG(68) = bootRegs[14];
@@ -620,8 +620,8 @@ void Player_SetBootData(PlayState* play, Player* this) {
 }
 
 int Player_InBlockingCsMode(PlayState* play, Player* this) {
-    return (this->stateFlags1 & (PLAYER_STATE1_DEAD | PLAYER_STATE1_29)) || (this->csAction != PLAYER_CSACTION_NONE) ||
-           (play->transitionTrigger == TRANS_TRIGGER_START) || (this->stateFlags1 & PLAYER_STATE1_0) ||
+    return (this->stateFlags1 & (PLAYER_STATE1_DEAD | PLAYER_STATE1_CUTSCENE)) || (this->csAction != PLAYER_CSACTION_NONE) ||
+           (play->transitionTrigger == TRANS_TRIGGER_START) || (this->stateFlags1 & PLAYER_STATE1_START_SCENE_TRANSITION) ||
            (this->stateFlags3 & PLAYER_STATE3_FLYING_WITH_HOOKSHOT) ||
            ((gSaveContext.magicState != MAGIC_STATE_IDLE) && (Player_ActionToMagicSpell(this, this->itemAction) >= 0));
 }
@@ -753,17 +753,17 @@ void Player_ReleaseLockOn(Player* this) {
 /**
  * This function aims to clear Z-Target related state when it isn't in use.
  * It also handles setting a specific free fall related state that is interntwined with Z-Targeting.
- * TODO: Learn more about this and give a name to PLAYER_STATE1_19
+ * TODO: Learn more about this
  */
 void Player_ClearZTargeting(Player* this) {
     if ((this->actor.bgCheckFlags & BGCHECKFLAG_GROUND) ||
-        (this->stateFlags1 & (PLAYER_STATE1_21 | PLAYER_STATE1_RIDING | PLAYER_STATE1_27)) ||
-        (!(this->stateFlags1 & (PLAYER_STATE1_18 | PLAYER_STATE1_19)) &&
+        (this->stateFlags1 & (PLAYER_STATE1_CLIMBING | PLAYER_STATE1_RIDING | PLAYER_STATE1_IN_WATER)) ||
+        (!(this->stateFlags1 & (PLAYER_STATE1_18 | PLAYER_STATE1_FREE_FALL)) &&
          ((this->actor.world.pos.y - this->actor.floorHeight) < 100.0f))) {
         this->stateFlags1 &= ~(PLAYER_STATE1_Z_TARGETING | PLAYER_STATE1_FRIENDLY_ACTOR_FOCUS | PLAYER_STATE1_PARALLEL |
-                               PLAYER_STATE1_18 | PLAYER_STATE1_19 | PLAYER_STATE1_LOCK_ON_FORCED_TO_RELEASE);
-    } else if (!(this->stateFlags1 & (PLAYER_STATE1_18 | PLAYER_STATE1_19 | PLAYER_STATE1_21))) {
-        this->stateFlags1 |= PLAYER_STATE1_19;
+                               PLAYER_STATE1_18 | PLAYER_STATE1_FREE_FALL | PLAYER_STATE1_LOCK_ON_FORCED_TO_RELEASE);
+    } else if (!(this->stateFlags1 & (PLAYER_STATE1_18 | PLAYER_STATE1_FREE_FALL | PLAYER_STATE1_CLIMBING))) {
+        this->stateFlags1 |= PLAYER_STATE1_FREE_FALL;
     }
 
     Player_ReleaseLockOn(this);
@@ -966,7 +966,7 @@ s32 Player_GetEnvironmentalHazard(PlayState* play) {
         envHazard = ((this->currentBoots == PLAYER_BOOTS_IRON) && (this->actor.bgCheckFlags & BGCHECKFLAG_GROUND))
                         ? (PLAYER_ENV_HAZARD_UNDERWATER_FLOOR - 1)
                         : (PLAYER_ENV_HAZARD_UNDERWATER_FREE - 1);
-    } else if (this->stateFlags1 & PLAYER_STATE1_27) { // Swimming
+    } else if (this->stateFlags1 & PLAYER_STATE1_IN_WATER) { // Swimming
         envHazard = PLAYER_ENV_HAZARD_SWIMMING - 1;
     } else {
         return PLAYER_ENV_HAZARD_NONE;
@@ -1382,7 +1382,7 @@ s32 Player_OverrideLimbDrawGameplayDefault(PlayState* play, s32 limbIndex, Gfx**
                 dLists = gPlayerLeftHandOpenDLs + gSaveContext.save.linkAge;
                 sLeftHandType = PLAYER_MODELTYPE_LH_OPEN;
             } else if ((this->leftHandType == PLAYER_MODELTYPE_LH_OPEN) && (this->actor.speed > 2.0f) &&
-                       !(this->stateFlags1 & PLAYER_STATE1_27)) {
+                       !(this->stateFlags1 & PLAYER_STATE1_IN_WATER)) {
                 dLists = gPlayerLeftHandClosedDLs + gSaveContext.save.linkAge;
                 sLeftHandType = PLAYER_MODELTYPE_LH_CLOSED;
             }
@@ -1394,7 +1394,7 @@ s32 Player_OverrideLimbDrawGameplayDefault(PlayState* play, s32 limbIndex, Gfx**
             if (sRightHandType == PLAYER_MODELTYPE_RH_SHIELD) {
                 dLists += this->currentShield * 4;
             } else if ((this->rightHandType == PLAYER_MODELTYPE_RH_OPEN) && (this->actor.speed > 2.0f) &&
-                       !(this->stateFlags1 & PLAYER_STATE1_27)) {
+                       !(this->stateFlags1 & PLAYER_STATE1_IN_WATER)) {
                 dLists = sPlayerRightHandClosedDLs + gSaveContext.save.linkAge;
                 sRightHandType = PLAYER_MODELTYPE_RH_CLOSED;
             }

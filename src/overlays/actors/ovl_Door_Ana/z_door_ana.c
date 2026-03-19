@@ -153,7 +153,7 @@ void DoorAna_WaitOpen(DoorAna* this, PlayState* play) {
             DoorAna_SetupAction(this, DoorAna_GrabPlayer);
         } else {
             // Set player state if player gets too close to actor. This initiates falling into the grotto.
-            if (!Player_InCsMode(play) && !(player->stateFlags1 & (PLAYER_STATE1_RIDING | PLAYER_STATE1_27)) &&
+            if (!Player_InCsMode(play) && !(player->stateFlags1 & (PLAYER_STATE1_RIDING | PLAYER_STATE1_IN_WATER)) &&
                 this->actor.xzDistToPlayer <= 15.0f && -50.0f <= this->actor.yDistToPlayer &&
                 this->actor.yDistToPlayer <= 15.0f) {
                 player->stateFlags1 |= PLAYER_STATE1_FALL_VOID_GROTTO;

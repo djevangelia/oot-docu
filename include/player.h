@@ -689,9 +689,9 @@ typedef struct PlayerAgeProperties {
     /* 0xA4 */ LinkAnimationHeader* unk_A4;
     /* 0xA8 */ LinkAnimationHeader* unk_A8;
     /* 0xAC */ LinkAnimationHeader* unk_AC[4];
-    /* 0xBC */ LinkAnimationHeader* sSideClimbAnim[2];
-    /* 0xC4 */ LinkAnimationHeader* unk_C4[2];
-    /* 0xCC */ LinkAnimationHeader* unk_CC[2];
+    /* 0xBC */ LinkAnimationHeader* sideClimbAnim[2]; // Climbing walls sideways
+    /* 0xC4 */ LinkAnimationHeader* dismountLadderDownAnim[2]; // Dismounting ladders at the top
+    /* 0xCC */ LinkAnimationHeader* dismountLadderUpAnim[2]; // Dismounting ladders at the bottom
 } PlayerAgeProperties; // size = 0xD4
 
 #define MELEE_WEAPON_INFO_TIP(weaponInfo) (&(weaponInfo)->posA)
@@ -705,9 +705,9 @@ typedef struct WeaponInfo {
 
 #define LEDGE_DIST_MAX 399.96002f
 
-#define PLAYER_STATE1_0 (1 << 0)
+#define PLAYER_STATE1_START_SCENE_TRANSITION (1 << 0) // Set during the first half of a scene transition (leaving the previous scene)
 #define PLAYER_STATE1_SWINGING_BOTTLE (1 << 1) // Bottle is swung; Bottle is active and can catch things
-#define PLAYER_STATE1_2 (1 << 2)
+#define PLAYER_STATE1_HOOKSHOT_LAND (1 << 2) // Landing after Hookshot fly
 #define PLAYER_STATE1_HOLDING_RANGED (1 << 3)    // Held item is Bow, Slingshot or Hookshot/Longshot (ranged), in any phase (aiming, unloaded, loaded, shooting, walking in non-aimed state).
 #define PLAYER_STATE1_HOSTILE_LOCK_ON (1 << 4) // Currently locked onto a hostile actor. Triggers a "battle" variant of many actions.
 #define PLAYER_STATE1_BONGO_PREINTRO (1 << 5) // Used by Bongo Bongo in the pre-intro cutscene, where player isn't yet in a cutscene action state, to prevent input.
@@ -718,23 +718,23 @@ typedef struct WeaponInfo {
 #define PLAYER_STATE1_GET_ITEM (1 << 10)
 #define PLAYER_STATE1_CARRYING_ACTOR (1 << 11) // Currently carrying an actor
 #define PLAYER_STATE1_CHARGING_SPIN_ATTACK (1 << 12) // Currently charging a spin attack (by holding down the B button)
-#define PLAYER_STATE1_13 (1 << 13)
-#define PLAYER_STATE1_14 (1 << 14)
+#define PLAYER_STATE1_HANGING (1 << 13) // Hanging after walking off a ledge or using Hookshot near a ledge.
+#define PLAYER_STATE1_CLIMB_JUMP_UP (1 << 14) // Set when dismounting a climbable wall by climbing up to ground (NOT ladder), or when jumping up a ledge and climbing up in the same motion (from ground or water). NOT set if hanging.
 #define PLAYER_STATE1_Z_TARGETING (1 << 15) // Either lock-on or parallel is active. This flag is never checked for and is practically unused.
 #define PLAYER_STATE1_FRIENDLY_ACTOR_FOCUS (1 << 16) // Currently focusing on a friendly actor. Includes friendly lock-on, talking, and more. Usually does not include hostile actor lock-on, see `PLAYER_STATE1_HOSTILE_LOCK_ON`.
 #define PLAYER_STATE1_PARALLEL (1 << 17) // "Parallel" mode, Z-Target without an actor lock-on
 #define PLAYER_STATE1_18 (1 << 18)
-#define PLAYER_STATE1_19 (1 << 19)
+#define PLAYER_STATE1_FREE_FALL (1 << 19) // Free falling, such as releasing hanging, set through Player_ClearZTargeting. Sets special camera mode.
 #define PLAYER_STATE1_FIRST_PERSON (1 << 20)    // Player is in first person camera (either with a first person weapon or unarmed)
-#define PLAYER_STATE1_21 (1 << 21)
+#define PLAYER_STATE1_CLIMBING (1 << 21) // Player is on a climbable wall/ladder
 #define PLAYER_STATE1_SHIELDING (1 << 22) // Shielding in any form (regular, Hylian shield as child, "shielding" with a two handed sword, etc.)
 #define PLAYER_STATE1_RIDING (1 << 23) // Riding a horse
 #define PLAYER_STATE1_HOLDING_BOOMERANG (1 << 24) // Held item is Boomerang. This includes all phases (aiming, throwing, catching, and walking in non-aimed state).
 #define PLAYER_STATE1_BOOMERANG_THROWN (1 << 25) // Boomerang has been thrown and is flying in the air
-#define PLAYER_STATE1_26 (1 << 26)
-#define PLAYER_STATE1_27 (1 << 27)
+#define PLAYER_STATE1_KNOCKBACK_FROZEN (1 << 26) // Player is being knocked back, or immobilized by frozen or electrified effect
+#define PLAYER_STATE1_IN_WATER (1 << 27) // Player is in water (swimming or submerged)
 #define PLAYER_STATE1_28 (1 << 28)
-#define PLAYER_STATE1_29 (1 << 29)
+#define PLAYER_STATE1_CUTSCENE (1 << 29) // Player is in a cutscene and unable to take any action
 #define PLAYER_STATE1_LOCK_ON_FORCED_TO_RELEASE (1 << 30) // Lock-on was released automatically, for example by leaving the lock-on leash range
 #define PLAYER_STATE1_FALL_VOID_GROTTO (1 << 31) // Used when voiding out from a fall (not on ground) and entering grottos.
 
@@ -743,32 +743,32 @@ typedef struct WeaponInfo {
 #define PLAYER_STATE2_2 (1 << 2)
 #define PLAYER_STATE2_MAKING_NOISE (1 << 3) // Set for one frame by Player_PlayItemNoise for melee attacks, changing items, using masks. Also when fast walking. Allows detection by certain enemies
 #define PLAYER_STATE2_PUSH_PULL (1 << 4) // Set intraframe by pushing and pulling actions. Blocks, graves, etc.
-#define PLAYER_STATE2_5 (1 << 5)
-#define PLAYER_STATE2_6 (1 << 6)
+#define PLAYER_STATE2_ONLY_DIRECTION_SHAPEYAW (1 << 5) // See Player_UpdateShapeYaw. Shape yaw can only be adjusted in movement direction.
+#define PLAYER_STATE2_NO_SHAPEYAW_ADJUSTMENT (1 << 6) // See Player_UpdateShapeYaw. Do not adjust shape yaw.
 #define PLAYER_STATE2_GRABBED (1 << 7) // Grabbed by enemy and immobilized, such as Redead, Like like
-#define PLAYER_STATE2_8 (1 << 8)
+#define PLAYER_STATE2_PUSH_PULL_CAMERA (1 << 8) // Used to set camera when holding and moving blocks
 #define PLAYER_STATE2_FORCE_SAND_FLOOR_SOUND (1 << 9) // Forces sand footstep sounds regardless of current floor type
-#define PLAYER_STATE2_10 (1 << 10)
-#define PLAYER_STATE2_DIVING (1 << 11)  // Dive action (not when jumping into water or being underwater)
+#define PLAYER_STATE2_DEEP_WATER (1 << 10) // Submerged under water. Exact limit depends on calling functions
+#define PLAYER_STATE2_DIVING (1 << 11)  // Dive action (not when jumping into water or just being underwater)
 #define PLAYER_STATE2_CLIMB_STILL (1 << 12) // Climbing but currently not moving
 #define PLAYER_STATE2_LOCK_ON_WITH_SWITCH (1 << 13) // Actor lock-on is active, specifically with Switch Targeting. Hold Targeting checks the state of the Z button instead of this flag.
 #define PLAYER_STATE2_FROZEN (1 << 14) // Used to draw the ice block encasing Link when frozen
-#define PLAYER_STATE2_15 (1 << 15)
+#define PLAYER_STATE2_15 (1 << 15) // Twinrova related
 #define PLAYER_STATE2_DO_ACTION_ENTER (1 << 16) // Sets the "Enter On A" DoAction
 #define PLAYER_STATE2_RELEASE_SPIN_ATTACK (1 << 17) // Set when a spin attack release starts, to signal the En_M_Thunder actor. Remains set for spin duration if non-magic spin attack (for sword collision).
 #define PLAYER_STATE2_CRAWLING (1 << 18) // Crawling through a crawlspace
-#define PLAYER_STATE2_19 (1 << 19)
+#define PLAYER_STATE2_SIDEHOP_BACKFLIP (1 << 19) // Making a sidehop or a backflip
 #define PLAYER_STATE2_NAVI_ACTIVE (1 << 20) // Navi is visible and active. Could be hovering idle near Link or hovering over other actors.
 #define PLAYER_STATE2_NAVI_TALK_AVAILABLE (1 << 21) // Possible to speak with Navi through C-up. Hint, Z-target, other actors with info.
-#define PLAYER_STATE2_22 (1 << 22)
-#define PLAYER_STATE2_23 (1 << 23)
-#define PLAYER_STATE2_24 (1 << 24)
-#define PLAYER_STATE2_25 (1 << 25)
-#define PLAYER_STATE2_26 (1 << 26)
+#define PLAYER_STATE2_CAN_HORSE_DISMOUNT (1 << 22) // Can dismount from riding horse
+#define PLAYER_STATE2_23 (1 << 23) // Ocarina NPC related
+#define PLAYER_STATE2_24 (1 << 24) // Ocarina NPC related
+#define PLAYER_STATE2_25 (1 << 25) // Ocarina NPC related
+#define PLAYER_STATE2_DARK_LINK_ROOM_SHADOW (1 << 26) // Set by Dark Link's room as long as Dark Link is not spawned. Causes Link's shadow to be drawn in the water.
 #define PLAYER_STATE2_USING_OCARINA (1 << 27) // Playing the ocarina or warping out from an ocarina warp song
 #define PLAYER_STATE2_IDLE_FIDGET (1 << 28) // Playing a fidget idle animation (under typical circumstances, see `Player_ChooseNextIdleAnim` for more info)
 #define PLAYER_STATE2_SHOPPING (1 << 29) // Set by shopkeepers when player is talking and shopping (including Happy Mask Shop)
-#define PLAYER_STATE2_30 (1 << 30)
+#define PLAYER_STATE2_ATTACK_MOVE_FORWARD (1 << 30) // Set when forward melee attack/releasing spin attack with stick forward, to move slightly forward during the attack
 #define PLAYER_STATE2_WHIRLPOOL_VOID (1 << 31) // Set by En_Stream on the frame where player is deep enough to get voided out
 
 #define PLAYER_STATE3_DARK_LINK_FALL (1 << 0) // Set on Dark Link when damaged to remove collision detection and allow him to fall through the floor
@@ -937,14 +937,14 @@ typedef struct Player {
     /* 0x0860 */ s16 unk_860; // stick flame timer among other things. Flag for which ranged weapon is used, negative if not loaded yet.
     /* 0x0862 */ s8 giDrawID; // get item draw ID + 1
     /* 0x0864 */ f32 unk_864;
-    /* 0x0868 */ f32 unk_868;
+    /* 0x0868 */ f32 moveFrame; // Current frame of the walk-run cycle animation.
     /* 0x086C */ f32 unused_86C;
     /* 0x0870 */ f32 forwardFootWeight; // See below. Serves same function, but is changed by intervals and so also used to weight animations.
     /* 0x0874 */ f32 forwardFoot; // 0 = right. Which foot is forward/more anterior when sidewalking and throwing Boomerang
     /* 0x0878 */ f32 unk_878;
     /* 0x087C */ s16 unk_87C;
     /* 0x087E */ s16 turnRate; // Amount angle is changed every frame when turning in place
-    /* 0x0880 */ f32 unk_880;
+    /* 0x0880 */ f32 currentSpeedLimit;
     /* 0x0884 */ f32 yDistToLedge; // y distance to ground above an interact wall. LEDGE_DIST_MAX if no ground is found
     /* 0x0888 */ f32 distToInteractWall; // xyz distance to the interact wall
     /* 0x088C */ u8 ledgeClimbType;
@@ -974,7 +974,7 @@ typedef struct Player {
     /* 0x0A20 */ MtxF shieldMf;
     /* 0x0A60 */ u8 bodyIsBurning;
     /* 0x0A61 */ u8 bodyFlameTimers[PLAYER_BODYPART_MAX]; // one flame per body part
-    /* 0x0A73 */ u8 unk_A73;
+    /* 0x0A73 */ u8 firedRanged; // Set for 4 frames after using a ranged weapon (including Boomerang), used by enemies and for deleting unfired arrow/seed actor on weapon switch
     /* 0x0A74 */ AfterPutAwayFunc afterPutAwayFunc; // See `Player_SetupWaitForPutAway` and `Player_Action_WaitForPutAway`
     /* 0x0A78 */ s8 invincibilityTimer; // prevents damage when nonzero. Positive values are intangibility, negative are invulnerability
     /* 0x0A79 */ u8 floorTypeTimer; // counts up every frame the current floor type is the same as the last frame
@@ -983,8 +983,8 @@ typedef struct Player {
     /* 0x0A7C */ f32 prevControlStickMagnitude;
     /* 0x0A80 */ s16 prevControlStickAngle;
     /* 0x0A82 */ u16 prevFloorSfxOffset;
-    /* 0x0A84 */ s16 unk_A84;
-    /* 0x0A86 */ s8 unk_A86;
+    /* 0x0A84 */ s16 transitionPosY; // Y position when entering a scene transition, used to time and setup falling transitions
+    /* 0x0A86 */ s8 voidoutDamage; // Used to flag that player shall take voidout damage (one heart)
     /* 0x0A87 */ u8 postReviveFrames; // 20 frames after Fairy revive where certain things cannot take place
     /* 0x0A88 */ Vec3f unk_A88; // previous body part 0 position
 } Player; // size = 0xA94

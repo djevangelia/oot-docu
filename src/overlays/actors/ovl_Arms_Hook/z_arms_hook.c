@@ -27,7 +27,7 @@ ActorProfile Arms_Hook_Profile = {
     /**/ ACTOR_ARMS_HOOK,
     /**/ ACTORCAT_ITEMACTION,
     /**/ FLAGS,
-    /**/ OBJECT_LINK_BOY,
+    /**/ OBJECT_LINK_BOY, // This object dependency makes Hookshot not spawn properly as child. Other items use OBJECT_GAMEPLAY_KEEP.
     /**/ sizeof(ArmsHook),
     /**/ ArmsHook_Init,
     /**/ ArmsHook_Destroy,
@@ -139,7 +139,7 @@ s32 ArmsHook_CheckForCancel(ArmsHook* this) {
 
     if (Player_HoldsHookshot(player)) {
         if ((player->itemAction != player->heldItemAction) || (player->actor.flags & ACTOR_FLAG_TALK) ||
-            ((player->stateFlags1 & (PLAYER_STATE1_DEAD | PLAYER_STATE1_26)))) {
+            ((player->stateFlags1 & (PLAYER_STATE1_DEAD | PLAYER_STATE1_KNOCKBACK_FROZEN)))) {
             this->timer = 0;
             ArmsHook_DetachFromActor(this);
             Math_Vec3f_Copy(&this->actor.world.pos, &player->unk_3C8);

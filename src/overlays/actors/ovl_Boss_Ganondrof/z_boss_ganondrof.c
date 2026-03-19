@@ -632,7 +632,7 @@ void BossGanondrof_Neutral(BossGanondrof* this, PlayState* play) {
         }
     }
 
-    if (player->unk_A73 != 0) {
+    if (player->firedRanged != 0) {
         BossGanondrof_SetupBlock(this, play);
     }
 

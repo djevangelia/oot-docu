@@ -319,7 +319,7 @@ void EnWallmas_WaitToDrop(EnWallmas* this, PlayState* play) {
     }
 
     // Reset drop timer if any condition is met
-    if ((player->stateFlags1 & PLAYER_STATE1_FIRST_PERSON) || (player->stateFlags1 & PLAYER_STATE1_27) ||
+    if ((player->stateFlags1 & PLAYER_STATE1_FIRST_PERSON) || (player->stateFlags1 & PLAYER_STATE1_IN_WATER) ||
         !(player->actor.bgCheckFlags & BGCHECKFLAG_GROUND) ||
         ((this->actor.params == 1) && (320.0f < Math_Vec3f_DistXZ(&this->actor.home.pos, playerPos)))) {
         Audio_StopSfxById(NA_SE_EN_FALL_AIM);
